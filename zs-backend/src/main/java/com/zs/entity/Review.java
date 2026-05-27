@@ -10,8 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "review",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "book_id"}))
+@Table(name = "review")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
@@ -37,6 +36,15 @@ public class Review {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    @Column(name = "source_url", length = 1024)
+    private String sourceUrl;
+
+    @Column(name = "book_title", length = 256)
+    private String bookTitle;
+
+    @Column(name = "book_author", length = 128)
+    private String bookAuthor;
 
     @Builder.Default
     private Integer likes = 0;

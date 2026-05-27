@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +28,12 @@ public class Book extends BaseEntity {
     @Column(name = "cover_url", length = 512)
     private String coverUrl;
 
+    @Column(name = "book_url", length = 1024)
+    private String bookUrl;
+
+    @Column(name = "latest_update_url", length = 1024)
+    private String latestUpdateUrl;
+
     @Type(ListArrayType.class)
     @Column(columnDefinition = "text[]")
     private List<String> tags;
@@ -50,13 +55,13 @@ public class Book extends BaseEntity {
     @Column(name = "total_words")
     private Long totalWords;
 
-    @Column(name = "avg_rating", precision = 3, scale = 1)
+    @Column(name = "rating")
     @Builder.Default
-    private BigDecimal avgRating = BigDecimal.ZERO;
+    private Integer rating = 0;
 
-    @Column(name = "review_count")
+    @Column(name = "count_of_review")
     @Builder.Default
-    private Integer reviewCount = 0;
+    private Integer countOfReview = 0;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
