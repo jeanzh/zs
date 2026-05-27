@@ -6,7 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FeedRepository extends JpaRepository<Feed, Long> {
-    Page<Feed> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
-    Page<Feed> findAllByOrderByCreatedAtDesc(Pageable pageable); // global feed for guests
+    Page<Feed> findByUserIdAndDismissedFalseOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    Page<Feed> findAllByOrderByCreatedAtDesc(Pageable pageable);
     boolean existsByUserIdAndBookIdAndChapterId(Long userId, Long bookId, Long chapterId);
+    Feed findByUserIdAndBookIdAndDismissedFalse(Long userId, Long bookId);
 }

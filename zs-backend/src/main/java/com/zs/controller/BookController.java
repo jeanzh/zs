@@ -1,8 +1,12 @@
 package com.zs.controller;
 
 import com.zs.dto.*;
+import com.zs.entity.Book;
+import com.zs.entity.Follow;
 import com.zs.entity.Review;
 import com.zs.entity.User;
+import com.zs.repository.BookRepository;
+import com.zs.repository.FollowRepository;
 import com.zs.repository.ReviewRepository;
 import com.zs.service.BookService;
 import jakarta.validation.Valid;
@@ -24,6 +28,8 @@ public class BookController {
 
     private final BookService bookService;
     private final ReviewRepository reviewRepository;
+    private final BookRepository bookRepository;
+    private final FollowRepository followRepository;
 
     @PostMapping("/submit")
     public ResponseEntity<?> submitBook(@Valid @RequestBody BookSubmitRequest req,
@@ -54,6 +60,78 @@ public class BookController {
         List<ReviewItemResponse> items = reviewPage.getContent().stream()
                 .map(r -> new ReviewItemResponse(
                         r.getId(),
+                        r.getBook().getId(),
+                        r.getRating(),
+                        r.getContent(),
+                        r.getLikes(),
+                        r.getSourceUrl(),
+                        r.getBookTitle(),
+                        r.getBookAuthor(),
+                        r.getCreatedAt(),
+                        r.getUser().getId(),
+                        r.getUser().getNickname(),
+                        r.getUser().getAvatarUrl()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(new PagedResponse<>(
+                items,
+                reviewPage.getNumber(),
+                reviewPage.getSize(),
+                reviewPage.getTotalElements(),
+                reviewPage.getTotalPages(),
+                reviewPage.isLast()
+        ));
+    }
+
+    @PostMapping("/{bookId}/follow")
+    public ResponseEntity<?> follow(@PathVariable Long bookId,
+                                    @AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "请先登录"));
+        }
+        try {
+            Book book = bookRepository.findById(bookId)
+                    .orElseThrow(() -> new RuntimeException("书籍不存在"));
+            if (followRepository.existsByUserIdAndBookId(user.getId(), bookId)) {
+                return ResponseEntity.ok(Map.of("message", "已关注"));
+            }
+            Follow follow = Follow.builder().user(user).book(book).build();
+            followRepository.save(follow);
+            return ResponseEntity.ok(Map.of("message", "关注成功"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{bookId}/follow")
+    public ResponseEntity<?> unfollow(@PathVariable Long bookId,
+                                      @AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "请先登录"));
+        }
+        try {
+            followRepository.findByUserIdAndBookId(user.getId(), bookId)
+                    .ifPresentOrElse(
+                            f -> followRepository.delete(f),
+                            () -> { throw new RuntimeException("未关注此书"); }
+                    );
+            return ResponseEntity.ok(Map.of("message", "已取消关注"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> listSubmissions(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "20") int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Review> reviewPage = reviewRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        List<ReviewItemResponse> items = reviewPage.getContent().stream()
+                .map(r -> new ReviewItemResponse(
+                        r.getId(),
+                        r.getBook().getId(),
                         r.getRating(),
                         r.getContent(),
                         r.getLikes(),

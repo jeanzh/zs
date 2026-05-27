@@ -7,17 +7,13 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class ReviewItemResponse {
-    private Long id;
+public class FeedItemResponse {
+    private Long feedId;
     private Long bookId;
-    private Integer rating;
-    private String content;
-    private Integer likes;
-    private String sourceUrl;
     private String bookTitle;
     private String bookAuthor;
+    private String bookCoverUrl;
+    private Long chapterId;
+    private String chapterTitle;
     private LocalDateTime createdAt;
-    private Long userId;
-    private String userNickname;
-    private String userAvatarUrl;
 }

@@ -8,8 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "feed",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "book_id", "chapter_id"}))
+@Table(name = "feed")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
@@ -38,7 +37,10 @@ public class Feed {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Chapter chapter;
 
-    @Column(name = "created_at", updatable = false)
+    @Builder.Default
+    private Boolean dismissed = false;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @PrePersist
