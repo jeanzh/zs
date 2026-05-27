@@ -1,0 +1,53 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+Desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Environment overrides (local secrets)
+application-local.yml
+application-local.properties
+.env
+.env.local
+
+# Node / Frontend (future)
+node_modules/
+dist/
+.nuxt/
+.output/
+.cache/
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.bak
+*.zip
