@@ -154,4 +154,71 @@ public class BookController {
                 reviewPage.isLast()
         ));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBook(@PathVariable Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("书籍不存在"));
+        double avg = book.getCountOfReview() > 0
+                ? Math.round((double) book.getRating() / book.getCountOfReview() * 10.0) / 10.0
+                : 0.0;
+        return ResponseEntity.ok(new BookListItemResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getCoverUrl(),
+                book.getTags(),
+                book.getSummary(),
+                book.getRating(),
+                book.getCountOfReview(),
+                avg,
+                book.getSerialStatus().name(),
+                book.getTotalWords(),
+                book.getLatestChapterTitle(),
+                book.getBookUrl(),
+                book.getLatestUpdateUrl(),
+                book.getCreatedAt()
+        ));
+    }
+
+    @GetMapping("/library")
+    public ResponseEntity<?> listBooks(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "20") int size,
+                                       @RequestParam(required = false) String tag) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<Book> bookPage = (tag != null && !tag.isBlank())
+                ? bookRepository.findByTagOrderByIdDesc(tag, pageable)
+                : bookRepository.findAllByOrderByIdDesc(pageable);
+
+        List<BookListItemResponse> items = bookPage.getContent().stream()
+                .map(b -> new BookListItemResponse(
+                        b.getId(),
+                        b.getTitle(),
+                        b.getAuthor(),
+                        b.getCoverUrl(),
+                        b.getTags(),
+                        b.getSummary(),
+                        b.getRating(),
+                        b.getCountOfReview(),
+                        b.getCountOfReview() > 0
+                                ? Math.round((double) b.getRating() / b.getCountOfReview() * 10.0) / 10.0
+                                : 0.0,
+                        b.getSerialStatus().name(),
+                        b.getTotalWords(),
+                        b.getLatestChapterTitle(),
+                        b.getBookUrl(),
+                        b.getLatestUpdateUrl(),
+                        b.getCreatedAt()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(new PagedResponse<>(
+                items,
+                bookPage.getNumber(),
+                bookPage.getSize(),
+                bookPage.getTotalElements(),
+                bookPage.getTotalPages(),
+                bookPage.isLast()
+        ));
+    }
 }

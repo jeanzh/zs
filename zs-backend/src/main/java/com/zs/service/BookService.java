@@ -78,6 +78,7 @@ public class BookService {
                 Math.round(avg * 10.0) / 10.0,
                 book.getBookUrl(),
                 book.getLatestUpdateUrl(),
+                book.getLatestChapterTitle(),
                 newlyCreated,
                 review.getId()
         );

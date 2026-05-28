@@ -37,6 +37,9 @@ public class ChapterController {
                 .build();
         chapter = chapterRepository.save(chapter);
 
+        book.setLatestChapterTitle(chapter.getTitle());
+        bookRepository.save(book);
+
         feedService.generateFeeds(book, chapter);
 
         return ResponseEntity.ok(Map.of(

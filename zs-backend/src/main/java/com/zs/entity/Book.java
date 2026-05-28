@@ -34,6 +34,9 @@ public class Book extends BaseEntity {
     @Column(name = "latest_update_url", length = 1024)
     private String latestUpdateUrl;
 
+    @Column(name = "latest_chapter_title", length = 512)
+    private String latestChapterTitle;
+
     @Type(ListArrayType.class)
     @Column(columnDefinition = "text[]")
     private List<String> tags;
