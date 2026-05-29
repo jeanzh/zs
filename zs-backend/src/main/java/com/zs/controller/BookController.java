@@ -184,11 +184,17 @@ public class BookController {
     @GetMapping("/library")
     public ResponseEntity<?> listBooks(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "20") int size,
-                                       @RequestParam(required = false) String tag) {
+                                       @RequestParam(required = false) List<String> tags) {
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Book> bookPage = (tag != null && !tag.isBlank())
-                ? bookRepository.findByTagOrderByIdDesc(tag, pageable)
-                : bookRepository.findAllByOrderByIdDesc(pageable);
+        Page<Book> bookPage;
+        if (tags == null || tags.isEmpty()) {
+            bookPage = bookRepository.findAllByOrderByIdDesc(pageable);
+        } else if (tags.size() == 1) {
+            bookPage = bookRepository.findByTagOrderByIdDesc(tags.get(0), pageable);
+        } else {
+            String pgArray = "{" + String.join(",", tags) + "}";
+            bookPage = bookRepository.findByTagsOverlapOrderByIdDesc(pgArray, pageable);
+        }
 
         List<BookListItemResponse> items = bookPage.getContent().stream()
                 .map(b -> new BookListItemResponse(

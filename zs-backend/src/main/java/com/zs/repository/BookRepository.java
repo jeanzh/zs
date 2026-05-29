@@ -23,4 +23,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            countQuery = "SELECT count(*) FROM book WHERE :tag = ANY(tags)",
            nativeQuery = true)
     Page<Book> findByTagOrderByIdDesc(String tag, Pageable pageable);
+
+    @Query(value = "SELECT * FROM book WHERE tags && CAST(:tags AS text[]) ORDER BY id DESC",
+           countQuery = "SELECT count(*) FROM book WHERE tags && CAST(:tags AS text[])",
+           nativeQuery = true)
+    Page<Book> findByTagsOverlapOrderByIdDesc(String tags, Pageable pageable);
 }

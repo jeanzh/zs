@@ -5,7 +5,7 @@ import { formatDate } from '~/utils'
 const api = useApi()
 
 const page = ref(0)
-const selectedTag = ref('')
+const selectedTags = ref<string[]>([])
 const data = ref<PagedResponse<BookListItemResponse> | null>(null)
 const allTags = ref<string[]>([])
 const loading = ref(true)
@@ -14,12 +14,12 @@ async function fetchData() {
   loading.value = true
   try {
     const params = new URLSearchParams({ page: String(page.value), size: String(20) })
-    if (selectedTag.value) params.set('tag', selectedTag.value)
+    selectedTags.value.forEach(t => params.append('tags', t))
     data.value = await api.get<PagedResponse<BookListItemResponse>>(
       `/api/books/library?${params.toString()}`
     )
     // Collect all unique tags for filter buttons
-    if (!selectedTag.value && data.value) {
+    if (data.value) {
       const tagSet = new Set<string>()
       data.value.content.forEach(b => b.tags?.forEach(t => tagSet.add(t)))
       allTags.value = [...tagSet].sort()
@@ -30,7 +30,9 @@ async function fetchData() {
 }
 
 function selectTag(tag: string) {
-  selectedTag.value = selectedTag.value === tag ? '' : tag
+  const idx = selectedTags.value.indexOf(tag)
+  if (idx >= 0) selectedTags.value.splice(idx, 1)
+  else selectedTags.value.push(tag)
   page.value = 0
   fetchData()
 }
@@ -58,17 +60,17 @@ onMounted(fetchData)
     <div class="flex flex-wrap gap-2 mb-5">
       <button
         class="px-3 py-1 rounded-full text-xs transition-colors"
-        :class="!selectedTag
+        :class="selectedTags.length === 0
           ? 'bg-[#c62828] text-white'
           : 'bg-white border border-[#e8e4df] text-gray-600 hover:border-[#c62828]'"
-        @click="selectedTag = ''; page = 0; fetchData()"
+        @click="selectedTags = []; page = 0; fetchData()"
       >
         全部
       </button>
       <button
         v-for="tag in allTags.slice(0, 20)" :key="tag"
         class="px-3 py-1 rounded-full text-xs transition-colors"
-        :class="selectedTag === tag
+        :class="selectedTags.includes(tag)
           ? 'bg-[#c62828] text-white'
           : 'bg-white border border-[#e8e4df] text-gray-600 hover:border-[#c62828]'"
         @click="selectTag(tag)"

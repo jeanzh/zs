@@ -5,6 +5,7 @@ const mobileMenuOpen = ref(false)
 const links = [
   { to: '/', label: '发现' },
   { to: '/library', label: '书库' },
+  { to: '/shelf', label: '书架' },
   { to: '/submit', label: '投稿' },
   { to: '/feeds', label: '动态' },
   { to: '/admin', label: '管理' },
